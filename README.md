@@ -1,4 +1,5 @@
 # sticks_69
+<<<<<<< HEAD
 
 A new Flutter project.
 
@@ -14,3 +15,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+les sticks des gones 
+>>>>>>> 57b1036d6bf234dab95cc1730ec93c0b3cbab889
