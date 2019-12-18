@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>314590200487-c6ngf98fttq07sm0d6lfhovvsf9cvk7r.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.314590200487-c6ngf98fttq07sm0d6lfhovvsf9cvk7r</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBbdJdv3aRes9Nl_200Lpb8Ju7MJGBHH-s</string>
+	<key>GCM_SENDER_ID</key>
+	<string>314590200487</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>guillaume.barre.sticks-69</string>
+	<key>PROJECT_ID</key>
+	<string>sticks-261012</string>
+	<key>STORAGE_BUCKET</key>
+	<string>sticks-261012.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:314590200487:ios:54f4dd5a37dffa22e31182</string>
+	<key>DATABASE_URL</key>
+	<string>https://sticks-261012.firebaseio.com</string>
+</dict>
+</plist>
