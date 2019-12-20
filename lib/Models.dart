@@ -8,20 +8,21 @@ class StickDetails {
   String name;
   String description;
   LatLng latLng;
-  String imageURL;
-  Marker marker;
 
   StickDetails(
     this.id,
     this.name,
     this.description,
     this.latLng,
-    this.imageURL,
-    this.marker,
   );
 
-  factory StickDetails.create(LatLng latLng){
-    return StickDetails("", "", "", latLng, "", Marker(markerId: MarkerId(latLng.toString())));
+  factory StickDetails.fromJson(id, Map<String, dynamic> json, LatLng latLng){
+    return StickDetails(
+      id,
+      "", 
+      "", 
+      latLng
+      );
   }
 }
 

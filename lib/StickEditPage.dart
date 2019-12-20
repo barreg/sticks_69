@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sticks_69/Models.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'Singleton.dart';
 
 class StickEditPage extends StatefulWidget {
   final StickDetails stick;
@@ -14,13 +17,10 @@ class StickEditPage extends StatefulWidget {
 class _StickEditPageState extends State<StickEditPage> {
   _StickEditPageState(this.stick);
   final StickDetails stick;
-  File _filePath;
   String _error;
   String _error2;
-  bool _bLoading = false;
   TextEditingController _nameController;
   TextEditingController _descriptionController;
-  // final databaseReference = FirebaseDatabase.instance.reference();
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class _StickEditPageState extends State<StickEditPage> {
     _descriptionController.text = stick.description;
   }
 
-  void _onSave() {
+  void _onSave() async {
     if (_nameController.text == "") {
       setState(() {
         _error = "donne un blaz wesh !";
@@ -46,29 +46,32 @@ class _StickEditPageState extends State<StickEditPage> {
     }
     stick.name = _nameController.text;
     stick.description = _descriptionController.text;
-    stick.latLng = stick.latLng;
-    Firestore.instance.collection('sticks').add({
+    DocumentReference doc = await Singleton().sticksRef.add({
       "coordonnées":
-          new GeoPoint(stick.latLng.latitude, stick.latLng.longitude),
+        new GeoPoint(stick.latLng.latitude, stick.latLng.longitude),
       "name": stick.name,
       "description": stick.description
     });
-  Navigator.pop(context);
+    stick.id = doc.documentID;
+    await Fluttertoast.showToast(
+      msg: "c stické gone !",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIos: 1,
+      backgroundColor: Theme.of(context).primaryColor,
+      textColor: Colors.white,
+      fontSize: 24.0);
+      Navigator.pop(context, stick);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("pimp ton stick"),
+          title: Text("Pimp ton Stick", textScaleFactor: 1.5),
           actions: <Widget>[
             FlatButton(
-                child: Text(
-                  "save",
-                  style: TextStyle(
-                      color: Theme.of(context).primaryColorLight,
-                      fontSize: 20.0),
-                ),
+                child: Icon(Icons.check, size: 30,color: Theme.of(context).textSelectionColor),
                 onPressed: () {
                   _onSave();
                 })
@@ -84,21 +87,19 @@ class _StickEditPageState extends State<StickEditPage> {
                   });
                 },
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 40),
+                style: TextStyle(fontSize: 20),
                 controller: _nameController,
                 decoration: InputDecoration(
-                    hintText: 'blaz de ton stick', errorText: _error)),
+                    hintText: 'Blaz de ton Stick', errorText: _error)),
             SizedBox(
               height: 30.0,
             ),
             Container(
-                width: 190.0,
-                height: 190.0,
-                decoration: new BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: new DecorationImage(
-                        fit: BoxFit.fill,
-                        image: AssetImage("assets/logo.jpeg")))),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle),
+                child: CircleAvatar(
+                  radius: 200,
+                  backgroundImage: AssetImage("assets/logo.jpeg"))),
             SizedBox(
               height: 30.0,
             ),
@@ -109,7 +110,7 @@ class _StickEditPageState extends State<StickEditPage> {
                   });
                 },
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 15),
                 controller: _descriptionController,
                 decoration: InputDecoration(
                     hintText: 'la petite description pour le trouver',

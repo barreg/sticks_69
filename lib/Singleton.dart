@@ -4,6 +4,8 @@ import 'dart:io';
 //import 'package:shared_preferences/shared_preferences.dart';
 
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'Models.dart';
 
 class Singleton {
@@ -15,7 +17,7 @@ class Singleton {
 
   // AuthCredential credential;
 
-  // final CollectionReference sticksRef = Firestore.instance.collection('sticks');
+  final CollectionReference sticksRef = Firestore.instance.collection('sticks');
   // final CollectionReference userRef = Firestore.instance.collection("users");
   // final CollectionReference logRef = Firestore.instance.collection("logs");
 

@@ -29,11 +29,21 @@ dependencies:
   google_maps_flutter: ^0.5.11
   flutter_spinkit: ^3.1.0
   cloud_firestore:
+  fluttertoast:
+  image_picker:
+  firebase_storage:
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons: 
+    
+flutter_icons:
+  image_path: "assets/LogoLyon1950.png"
+  android: true
+  ios: true
 
   
   
@@ -80,3 +90,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  fonts:
+    - family: "Merriweather"
+      fonts:
+        - asset: assets/Merriweather-Regular.ttf
+        - asset: assets/Merriweather-Bold.ttf
+          weight: 500
