@@ -1,7 +1,8 @@
 # sticks_69
 <<<<<<< HEAD
 
-A new Flutter project.
+A Flutter project, aimed at designing an app to locate stickers we stick with our friends. The goal is simple: when we stick a sticker somewhere in the street, we can add it on the map, and all the users can see it. The app also has a Pictures tab, where we can add pictures. 
+It uses the google maps package, and quite a few others. 
 
 ## Getting Started
 
