@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sticks_69/Models.dart';
@@ -98,7 +97,7 @@ class _StickEditPageState extends State<StickEditPage> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle),
                 child: CircleAvatar(
-                  radius: 200,
+                  maxRadius: 175,
                   backgroundImage: AssetImage("assets/logo.jpeg"))),
             SizedBox(
               height: 30.0,
