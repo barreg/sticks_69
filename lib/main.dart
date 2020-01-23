@@ -1,7 +1,12 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'StartPage.dart';
 
-void main() => runApp(MyApp());
+List<CameraDescription> cameras;
+
+void main() {
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -22,10 +27,10 @@ class MyApp extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16))),
             buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
             snackBarTheme: SnackBarThemeData(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(35))),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(35))),
             fontFamily: "Merriweather"),
-        home: StartPage(),
+        home: new StartPage(),
         builder: (BuildContext context, Widget child) {
           return Scaffold(body: child);
         });

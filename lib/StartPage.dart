@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sticks_69/MapPage.dart';
-import 'PicturesPage.dart';
+import 'package:sticks_69/PicturesPage.dart';
 
 class StartPage extends StatefulWidget {
   @override

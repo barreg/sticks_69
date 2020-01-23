@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+import 'Models.dart';
+
 class Singleton {
   static final Singleton _singleton = new Singleton._internal();
 
@@ -17,8 +19,21 @@ class Singleton {
   // final CollectionReference userRef = Firestore.instance.collection("users");
   // final CollectionReference logRef = Firestore.instance.collection("logs");
 
-  
+  Stream<List<PicDetails>> streamPics() {
+    Stream<QuerySnapshot> snapshots = picsRef.snapshots();
+    Stream<List<PicDetails>> result = snapshots.map((snap) => snap.documents
+        .map((pic) => PicDetails.fromJson(pic.documentID, pic.data))
+        .toList());
+    return result;
+  }
+
+  Stream<List<StickDetails>> streamSticks() {
+    Stream<QuerySnapshot> snapshots = sticksRef.snapshots();
+    Stream<List<StickDetails>> result = snapshots.map((snap) => snap.documents
+        .map((stick) => StickDetails.fromJson(stick.documentID, stick.data))
+        .toList());
+    return result;
+  }
 
   Singleton._internal();
-
 }

@@ -1,26 +1,36 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class StickDetails {
   String id;
   String name;
   String description;
-  LatLng latLng;
+  GeoPoint location;
 
   StickDetails(
     this.id,
     this.name,
     this.description,
-    this.latLng,
+    this.location,
   );
 
-  factory StickDetails.fromJson(id, Map<String, dynamic> json, LatLng latLng){
+  factory StickDetails.fromJson(id, Map<String, dynamic> json) {
     return StickDetails(
       id,
-      "", 
-      "", 
-      latLng
-      );
+      json["name"] ?? "",
+      json["description"] ?? "",
+      json["coordonnées"] ?? null,
+    );
   }
 }
 
+class PicDetails {
+  String id;
+  String creationTime;
+  String imageURL;
+
+  PicDetails(this.id, this.creationTime, this.imageURL);
+
+  factory PicDetails.fromJson(id, Map<String, dynamic> json) {
+    return PicDetails(id, json["creationTime"] ?? "", json["imageURL"] ?? "");
+  }
+}

@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sticks_69/Singleton.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:uuid/uuid.dart';
+import 'DisplayPicture.dart';
+import 'Models.dart';
 
 class PicturesPage extends StatefulWidget {
   @override
@@ -14,46 +16,23 @@ class PicturesPage extends StatefulWidget {
 
 class _PicturesPageState extends State<PicturesPage>
     with AutomaticKeepAliveClientMixin<PicturesPage> {
-  Map<dynamic, File> _images = {};
-  List<String> _urls = [];
-  File _currentImage;
-  dynamic _uploadFileURL;
-  List<CameraDescription> cameras;
   @override
   bool get wantKeepAlive => true;
+  List<CameraDescription> cameras = [];
+  File _currentImage;
 
-  void initState() async {
-    super.initState();
+  void checkCameras() async {
     WidgetsFlutterBinding.ensureInitialized();
     cameras = await availableCameras();
-    _getPictures();
-  }
-
-  void dispose() {
-    super.dispose();
-  }
-
-  void _initPicture(request) {
-    _urls.add(request["imageURL"]);
-    print(_urls);
-  }
-
-  void _getPictures() {
-    Singleton().picsRef.getDocuments().then((docs) {
-      if (docs.documents.isNotEmpty) {
-        for (int i = 0; i < docs.documents.length; i++) {
-          _initPicture(docs.documents[i].data);
-        }
-      }
-    });
   }
 
   void _takePicture() async {
+    checkCameras();
     await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-              content: const Text("Tu la veux d'où ta pic boy ?"),
+              content: const Text("Tu la veux d'où ta pic boi ?"),
               actions: <Widget>[
                 RaisedButton.icon(
                   onPressed: () => _pickImage(ImageSource.camera),
@@ -70,21 +49,29 @@ class _PicturesPageState extends State<PicturesPage>
   }
 
   void _pickImage(ImageSource source) async {
-    var image = await ImagePicker.pickImage(source: source);
+    PicDetails pic = new PicDetails.fromJson(null, new Map());
+    pic.creationTime = DateTime.now().toIso8601String();
+
+    File image = await ImagePicker.pickImage(source: source);
+    if (image == null) return;
     setState(() {
       _currentImage = image;
     });
-    StorageReference ref = Singleton().storageReference;
-    var uuid = Uuid();
-    await ref.child(uuid.toString()).putFile(_currentImage).onComplete;
-    await ref.child(uuid.toString()).getDownloadURL().then((fileURL) {
-      setState(() {
-        _uploadFileURL = fileURL;
-        _images[_uploadFileURL] = _currentImage;
-        _urls.add(fileURL);
-      });
-    });
-    Singleton().picsRef.add({"imageURL": _uploadFileURL});
+
+    StorageTaskSnapshot uploadPic = await FirebaseStorage.instance
+        .ref()
+        .child("pics")
+        .child(pic.creationTime)
+        .putFile(_currentImage)
+        .onComplete;
+
+    String url = await uploadPic.ref.getDownloadURL();
+    pic.imageURL = url;
+
+    DocumentReference doc = await Singleton()
+        .picsRef
+        .add({"imageURL": pic.imageURL, "creationTime": pic.creationTime});
+    pic.id = doc.documentID;
 
     await Fluttertoast.showToast(
         msg: "c posté gone !",
@@ -94,10 +81,17 @@ class _PicturesPageState extends State<PicturesPage>
         backgroundColor: Theme.of(context).primaryColor,
         textColor: Colors.white,
         fontSize: 24.0);
+    Navigator.pop(context);
   }
 
-  Widget _image(String imageURL) {
-    return Image(image: NetworkImage(imageURL));
+  Widget _image(PicDetails picDetails) {
+    return GestureDetector(
+        child: Image(image: NetworkImage(picDetails.imageURL)),
+        onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DisplayPicture(picDetails),
+            )));
   }
 
   @override
@@ -118,8 +112,23 @@ class _PicturesPageState extends State<PicturesPage>
                 })
           ],
         ),
-        body: ListView(children: [
-          Column(children: [for (var i in _urls) _image(i)])
+        body: Column(children: [
+          Expanded(
+              child: StreamBuilder<List<PicDetails>>(
+            stream: Singleton().streamPics(),
+            builder: (BuildContext context,
+                AsyncSnapshot<List<PicDetails>> snapshot) {
+              if (!snapshot.hasData)
+                return Center(child: CircularProgressIndicator());
+              return ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (_, int index) {
+                  final PicDetails pic = snapshot.data[index];
+                  return _image(pic);
+                },
+              );
+            },
+          ))
         ]));
   }
 }
