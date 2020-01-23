@@ -61,7 +61,7 @@ class _StickEditPageState extends State<StickEditPage> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIos: 1,
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).buttonColor,
         textColor: Colors.white,
         fontSize: 24.0);
     Navigator.pop(context, stick);
