@@ -101,11 +101,12 @@ class _MapPageState extends State<MapPage> {
       setState(() {
         final MarkerId markerId = MarkerId(stick.id);
         final Marker marker = Marker(
-            markerId: markerId,
-            position: _lastMapPosition,
-            icon: BitmapDescriptor.defaultMarker,
-            infoWindow:
-                InfoWindow(title: stick.name, snippet: stick.description));
+          markerId: markerId,
+          position: _lastMapPosition,
+          icon: BitmapDescriptor.defaultMarker,
+          infoWindow: InfoWindow(title: stick.name, snippet: stick.description),
+          onTap: () => {setTrue(markerId)},
+        );
         markers[markerId] = marker;
       });
     }
