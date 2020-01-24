@@ -22,6 +22,7 @@ class _PicturesPageState extends State<PicturesPage>
   List<CameraDescription> cameras = [];
   File _currentImage;
   bool _bLoading = false;
+  List<Image> images;
 
   void checkCameras() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -91,7 +92,7 @@ class _PicturesPageState extends State<PicturesPage>
     Navigator.pop(context);
   }
 
-  Widget _image(PicDetails picDetails) {
+  Widget _image(PicDetails picDetails, Image image) {
     return GestureDetector(
         child: Container(
             decoration: BoxDecoration(
@@ -102,7 +103,7 @@ class _PicturesPageState extends State<PicturesPage>
         onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => DisplayPicture(picDetails),
+              builder: (context) => DisplayPicture(picDetails, image),
             )));
   }
 
@@ -138,7 +139,8 @@ class _PicturesPageState extends State<PicturesPage>
                 itemCount: snapshot.data.length,
                 itemBuilder: (_, int index) {
                   final PicDetails pic = snapshot.data[index];
-                  return _image(pic);
+                  return _image(
+                      pic, Image.network(snapshot.data[index].imageURL));
                 },
               );
             },

@@ -5,14 +5,18 @@ import 'Singleton.dart';
 
 class DisplayPicture extends StatefulWidget {
   final PicDetails pic;
-  DisplayPicture(PicDetails picDetails) : this.pic = picDetails;
+  final Image image;
+  DisplayPicture(PicDetails picDetails, Image image)
+      : this.pic = picDetails,
+        this.image = image;
   @override
-  _DisplayPictureState createState() => _DisplayPictureState(pic);
+  _DisplayPictureState createState() => _DisplayPictureState(pic, image);
 }
 
 class _DisplayPictureState extends State<DisplayPicture> {
-  _DisplayPictureState(this.pic);
+  _DisplayPictureState(this.pic, this.image);
   PicDetails pic;
+  Image image;
   @override
   Widget build(BuildContext context) {
     return Container(
