@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sticks_69/LoadingBarrier.dart';
 import 'package:sticks_69/Singleton.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'DisplayPicture.dart';
@@ -20,6 +21,7 @@ class _PicturesPageState extends State<PicturesPage>
   bool get wantKeepAlive => true;
   List<CameraDescription> cameras = [];
   File _currentImage;
+  bool _bLoading = false;
 
   void checkCameras() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -56,6 +58,7 @@ class _PicturesPageState extends State<PicturesPage>
     if (image == null) return;
     setState(() {
       _currentImage = image;
+      _bLoading = true;
     });
 
     StorageTaskSnapshot uploadPic = await FirebaseStorage.instance
@@ -67,6 +70,10 @@ class _PicturesPageState extends State<PicturesPage>
 
     String url = await uploadPic.ref.getDownloadURL();
     pic.imageURL = url;
+
+    setState(() {
+      _bLoading = false;
+    });
 
     DocumentReference doc = await Singleton()
         .picsRef
@@ -128,7 +135,11 @@ class _PicturesPageState extends State<PicturesPage>
                 },
               );
             },
-          ))
+          )),
+          LoadingBarrier(
+            text: "2 sec stp ...",
+            bIsLoading: _bLoading,
+          )
         ]));
   }
 }

@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:sticks_69/Models.dart';
 import 'package:sticks_69/StickEditPage.dart';
 import 'Singleton.dart';
+import 'package:sticks_69/BenzPage.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -163,6 +164,21 @@ class _MapPageState extends State<MapPage> {
               textScaleFactor: 1.5,
               style: TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: Theme.of(context).primaryColor,
+          actions: <Widget>[
+            Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: GestureDetector(
+                  child: Container(
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                      child: CircleAvatar(
+                          maxRadius: 23,
+                          backgroundImage: AssetImage("assets/Benz.jpeg"))),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BenzPage()),
+                  ),
+                ))
+          ],
         ),
         body: Stack(children: [
           GoogleMap(

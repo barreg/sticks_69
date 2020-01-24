@@ -17,8 +17,9 @@ class _DisplayPictureState extends State<DisplayPicture> {
   Widget build(BuildContext context) {
     return Container(
         decoration: BoxDecoration(
+            color: Colors.black,
             image: DecorationImage(
-                image: NetworkImage(pic.imageURL), fit: BoxFit.cover)),
+                image: NetworkImage(pic.imageURL), fit: BoxFit.contain)),
         child: Stack(
           children: <Widget>[
             Positioned(
