@@ -93,7 +93,12 @@ class _PicturesPageState extends State<PicturesPage>
 
   Widget _image(PicDetails picDetails) {
     return GestureDetector(
-        child: Image(image: NetworkImage(picDetails.imageURL)),
+        child: Container(
+            decoration: BoxDecoration(
+          color: Colors.white,
+          image: DecorationImage(
+              image: NetworkImage(picDetails.imageURL), fit: BoxFit.cover),
+        )),
         onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -127,7 +132,9 @@ class _PicturesPageState extends State<PicturesPage>
                 AsyncSnapshot<List<PicDetails>> snapshot) {
               if (!snapshot.hasData)
                 return Center(child: CircularProgressIndicator());
-              return ListView.builder(
+              return GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    mainAxisSpacing: 4, crossAxisSpacing: 4, crossAxisCount: 3),
                 itemCount: snapshot.data.length,
                 itemBuilder: (_, int index) {
                   final PicDetails pic = snapshot.data[index];
