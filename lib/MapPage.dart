@@ -89,21 +89,20 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  void _onAddMarkerButtonPressed() async {
+  void _onAddMarkerButtonPressed(LatLng latLng) async {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => StickEditPage(
                 StickDetails.fromJson(null, new Map()),
-                GeoPoint(
-                    _lastMapPosition.latitude, _lastMapPosition.longitude))));
+                GeoPoint(latLng.latitude, latLng.longitude))));
     if (result != null) {
       StickDetails stick = result;
       setState(() {
         final MarkerId markerId = MarkerId(stick.id);
         final Marker marker = Marker(
           markerId: markerId,
-          position: _lastMapPosition,
+          position: LatLng(latLng.latitude, latLng.longitude),
           icon: BitmapDescriptor.defaultMarker,
           infoWindow: InfoWindow(title: stick.name, snippet: stick.description),
           onTap: () => {setTrue(markerId)},
@@ -193,7 +192,7 @@ class _MapPageState extends State<MapPage> {
             markers: Set<Marker>.of(markers.values),
             onCameraMove: _onCameraMove,
             onTap: setFalse,
-            //onLongPress: ,
+            onLongPress: _onAddMarkerButtonPressed,
           ),
           Padding(
               padding: EdgeInsets.all(16.0),
@@ -202,11 +201,7 @@ class _MapPageState extends State<MapPage> {
                   child: Column(children: [
                     button(_onMapTypeButtonPressed, Icons.map, 1),
                     SizedBox(
-                      height: 16.0,
-                    ),
-                    button(_onAddMarkerButtonPressed, Icons.add_location, 2),
-                    SizedBox(
-                      height: 16.0,
+                      height: 20.0,
                     ),
                     button(_goToMyLocation, Icons.my_location, 3),
                   ]))),
