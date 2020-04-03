@@ -15,7 +15,6 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   GoogleMapController _controller;
   static const LatLng _center = const LatLng(45.723849, 4.832572);
-  LatLng _lastMapPosition = _center;
   MapType _currentMapType;
   Position _currentPosition;
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
@@ -27,10 +26,6 @@ class _MapPageState extends State<MapPage> {
     getCurrentLocation();
     populateClients();
     super.initState();
-  }
-
-  void dispose() {
-    super.dispose();
   }
 
   void getCurrentLocation() async {
@@ -75,10 +70,6 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _controller = controller;
     });
-  }
-
-  void _onCameraMove(CameraPosition position) {
-    _lastMapPosition = position.target;
   }
 
   void _onMapTypeButtonPressed() {
@@ -190,7 +181,6 @@ class _MapPageState extends State<MapPage> {
             ),
             mapType: _currentMapType,
             markers: Set<Marker>.of(markers.values),
-            onCameraMove: _onCameraMove,
             onTap: setFalse,
             onLongPress: _onAddMarkerButtonPressed,
           ),

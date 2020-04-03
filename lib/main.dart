@@ -1,5 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:sticks_69/AuthWidget.dart';
+import 'AuthWidgetBuilder.dart';
 import 'StartPage.dart';
 
 List<CameraDescription> cameras;
@@ -11,7 +13,8 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return AuthWidgetBuilder(builder: (context, userSnapshot) {
+      return MaterialApp(
         theme: ThemeData(
             primarySwatch: Colors.red,
             focusColor: Colors.red[900],
@@ -29,10 +32,13 @@ class MyApp extends StatelessWidget {
             snackBarTheme: SnackBarThemeData(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(35))),
-            fontFamily: "Merriweather"),
-        home: new StartPage(),
-        builder: (BuildContext context, Widget child) {
-          return Scaffold(body: child);
-        });
+            fontFamily: "Merriweather",
+            errorColor: Colors.redAccent),
+        debugShowCheckedModeBanner: false,
+        home: AuthWidget(
+          userSnapshot: userSnapshot,
+        ),
+      );
+    });
   }
 }

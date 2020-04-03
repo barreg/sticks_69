@@ -30,11 +30,18 @@ dependencies:
   fluttertoast:
   image_picker:
   firebase_storage:
+  firebase_auth:
+  provider:
+  firebase_messaging:
+  shared_preferences:
+  image_cropper:
   uuid:
   camera:
   path_provider:
   video_player:
   path:
+  flutter_facebook_login: ^3.0.0
+  flutter_auth_buttons: 
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +69,8 @@ flutter:
     - assets/logo.jpeg
     - assets/Benz.jpeg
     - assets/BenzBicycle.gif
+    - assets/Caisson_Gone.png
+    - assets/Vieu_Logo.png
   #- images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -22,7 +22,26 @@ class _PicturesPageState extends State<PicturesPage>
   List<CameraDescription> cameras = [];
   File _currentImage;
   bool _bLoading = false;
-  List<Image> images;
+  List<Image> images = [];
+  List<PicDetails> pics = [];
+
+  @override
+  void initState() {
+    Singleton().picsRef.getDocuments().then((docs) {
+      if (docs.documents.isNotEmpty) {
+        for (int i = 0; i < docs.documents.length; i++) {
+          images.add(Image.network(docs.documents[i].data['imageURL']));
+          pics.add(new PicDetails(
+              docs.documents[i].documentID,
+              docs.documents[i].data['creationTime'],
+              docs.documents[i].data['imageURL']));
+        }
+        print(images.length);
+        print(pics.length);
+      }
+    });
+    super.initState();
+  }
 
   void checkCameras() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -127,22 +146,12 @@ class _PicturesPageState extends State<PicturesPage>
         ),
         body: Column(children: [
           Expanded(
-              child: StreamBuilder<List<PicDetails>>(
-            stream: Singleton().streamPics(),
-            builder: (BuildContext context,
-                AsyncSnapshot<List<PicDetails>> snapshot) {
-              if (!snapshot.hasData)
-                return Center(child: CircularProgressIndicator());
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    mainAxisSpacing: 4, crossAxisSpacing: 4, crossAxisCount: 3),
-                itemCount: snapshot.data.length,
-                itemBuilder: (_, int index) {
-                  final PicDetails pic = snapshot.data[index];
-                  return _image(
-                      pic, Image.network(snapshot.data[index].imageURL));
-                },
-              );
+              child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                mainAxisSpacing: 4, crossAxisSpacing: 4, crossAxisCount: 3),
+            itemCount: images.length,
+            itemBuilder: (_, int index) {
+              return _image(pics[index], images[index]);
             },
           )),
           LoadingBarrier(

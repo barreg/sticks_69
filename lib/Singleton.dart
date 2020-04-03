@@ -24,6 +24,7 @@ class Singleton {
     Stream<List<PicDetails>> result = snapshots.map((snap) => snap.documents
         .map((pic) => PicDetails.fromJson(pic.documentID, pic.data))
         .toList());
+        print(result.length);
     return result;
   }
 
