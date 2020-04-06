@@ -1,7 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="sticks_69">Sticks_69</string>
-  <string name="title">Flutter Application</string>
-  <string name="android">Android</string>
   <string name="facebook_app_id">168310727623859</string> 
   <string name="fb_login_protocol_scheme">fb168310727623859</string>
 </resources>
+

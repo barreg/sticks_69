@@ -2,7 +2,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:sticks_69/AuthWidget.dart';
 import 'AuthWidgetBuilder.dart';
-import 'StartPage.dart';
 
 List<CameraDescription> cameras;
 

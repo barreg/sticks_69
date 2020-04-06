@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,9 +11,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool isLoggedIn = false;
-  static final FacebookLogin facebookSignIn = new FacebookLogin();
-  String _message = 'Log in/out by pressing the buttons below.';
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  bool isLogged = false;
+  FirebaseUser myUser;
+  var profileData;
+  
 
   @override
   Widget build(BuildContext context) {
@@ -37,74 +41,79 @@ class _LoginPageState extends State<LoginPage> {
                 ))),
             SizedBox(height: 20),
             FacebookSignInButton(onPressed: () {
-              _login();
-            })
+              _logIn();
+            }),
+            FacebookSignInButton(onPressed: () {
+              _logOut();
+            }),
+            Container(
+              child: Center(
+                child: isLogged
+                    ? _displayUserData(profileData)
+                    : null,
+              ),
+            )
           ], mainAxisAlignment: MainAxisAlignment.center),
         ))));
   }
 
-  void initiateFacebookLogin() async {
-    var facebookLogin = FacebookLogin();
-    var facebookLoginResult =
-        await facebookLogin.logIn(['email']);
-    switch (facebookLoginResult.status) {
-      case FacebookLoginStatus.error:
-        print("Error");
-        onLoginStatusChanged(false);
-        break;
-      case FacebookLoginStatus.cancelledByUser:
-        print("CancelledByUser");
-        onLoginStatusChanged(false);
-        break;
-      case FacebookLoginStatus.loggedIn:
-        print("LoggedIn");
-        onLoginStatusChanged(true);
-        break;
+  Future<FirebaseUser> _loginWithFacebook() async {
+    var facebookLogin = new FacebookLogin();
+    var result = await facebookLogin.logIn(['email']);
+
+    debugPrint(result.status.toString());
+
+    if (result.status == FacebookLoginStatus.loggedIn) {
+       AuthCredential credential = FacebookAuthProvider.getCredential(
+          accessToken: result.accessToken.token);
+      FirebaseUser user = await _auth.signInWithCredential(credential);      
+      return user;
     }
+    return null;
   }
 
-  void onLoginStatusChanged(bool isLoggedIn) {
-    setState(() {
-      this.isLoggedIn = isLoggedIn;
+  void _logOut() async {
+    await _auth.signOut().then((response) {
+      isLogged = false;
+      setState(() {});
     });
   }
 
-  Future<Null> _login() async {
-    final FacebookLoginResult result =
-        await facebookSignIn.logIn(['email']);
-
-    switch (result.status) {
-      case FacebookLoginStatus.loggedIn:
-        final FacebookAccessToken accessToken = result.accessToken;
-        _showMessage('''
-         Logged in!
-         
-         Token: ${accessToken.token}
-         User id: ${accessToken.userId}
-         Expires: ${accessToken.expires}
-         Permissions: ${accessToken.permissions}
-         Declined permissions: ${accessToken.declinedPermissions}
-         ''');
-        break;
-      case FacebookLoginStatus.cancelledByUser:
-        _showMessage('Login cancelled by the user.');
-        break;
-      case FacebookLoginStatus.error:
-        _showMessage('Something went wrong with the login process.\n'
-            'Here\'s the error Facebook gave us: ${result.errorMessage}');
-        break;
-    }
-  }
-
-  Future<Null> _logOut() async {
-    await facebookSignIn.logOut();
-    _showMessage('Logged out.');
-  }
-
-  void _showMessage(String message) {
-    setState(() {
-      _message = message;
+  void _logIn() {
+    _loginWithFacebook().then((response) {
+      if (response != null) {
+        myUser = response;
+        isLogged = true;
+        setState(() {});
+      }
     });
   }
 
+  _displayUserData(profileData) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Container(
+          height: 200.0,
+          width: 200.0,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            image: DecorationImage(
+              fit: BoxFit.fill,
+              image: NetworkImage(
+                profileData['picture']['data']['url'],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 28.0),
+        Text(
+          "Logged in as: ${profileData['name']}",
+          style: TextStyle(
+            fontSize: 20.0,
+          ),
+        ),
+      ],
+    );
+  }
 }
