@@ -113,12 +113,22 @@ class _PicturesPageState extends State<PicturesPage>
 
   Widget _image(PicDetails picDetails, Image image) {
     return GestureDetector(
-        child: Container(
-            decoration: BoxDecoration(
-          color: Colors.white,
-          image: DecorationImage(
-              image: NetworkImage(picDetails.imageURL), fit: BoxFit.cover),
-        )),
+        child: Image.network(
+          picDetails.imageURL,
+          fit: BoxFit.cover,
+          loadingBuilder: (BuildContext context, Widget child,
+              ImageChunkEvent loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes
+                    : null,
+              ),
+            );
+          },
+        ),
         onTap: () => Navigator.push(
             context,
             MaterialPageRoute(

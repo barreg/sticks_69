@@ -15,11 +15,31 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
+	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb168310727623859</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>1.0.0</string>
+	<key>FacebookAppID</key>
+	<string>168310727623859</string>
+	<key>FacebookDisplayName</key>
+	<string>sticks_69</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
+		<string>fbshareextension</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
@@ -55,26 +75,5 @@
 	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<string>YES</string>
-	<key>CFBundleURLTypes</key> 
-	<array> 
-		<dict> 
-			<key>CFBundleURLSchemes</key> 
-			<array>
-				<string>fb168310727623859</string> 
-			</array> 
-		</dict> 
-	</array> 
-	<key>FacebookAppID</key> 
-	<string>168310727623859</string>
-	<key>FacebookDisplayName</key>
-	<string>sticks_69</string>
-
-	<key>LSApplicationQueriesSchemes</key>
- 	<array> 
-	 	<string>fbapi</string>
-		<string>fb-messenger-share-api</string>
-		<string>fbauth2</string>
-		<string>fbshareextension</string>
-	</array>
 </dict>
 </plist>

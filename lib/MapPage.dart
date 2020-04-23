@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sticks_69/Models.dart';
 import 'package:sticks_69/StickEditPage.dart';
+import 'SettingsPage.dart';
 import 'Singleton.dart';
 import 'package:sticks_69/BenzPage.dart';
 
@@ -150,6 +151,13 @@ class _MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => SettingsPage())),
+              icon: Icon(
+                Icons.settings,
+                size: 40,
+              )),
           title: Text('Sticks_69',
               textScaleFactor: 1.5,
               style: TextStyle(fontWeight: FontWeight.bold)),

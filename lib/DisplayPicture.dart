@@ -19,55 +19,71 @@ class _DisplayPictureState extends State<DisplayPicture> {
   Image image;
   @override
   Widget build(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(
-            color: Colors.black,
-            image: DecorationImage(
-                image: NetworkImage(pic.imageURL), fit: BoxFit.contain)),
-        child: Stack(
-          children: <Widget>[
-            Positioned(
-                top: 20,
-                right: 20,
-                child: IconButton(
-                    icon: Icon(Icons.delete, color: Colors.redAccent),
-                    iconSize: 35,
-                    onPressed: () async => await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              content: const Text("Ca la tej ?"),
-                              actions: <Widget>[
-                                FlatButton(
-                                    onPressed: () {
-                                      try {
-                                        FirebaseStorage.instance
-                                            .ref()
-                                            .child("pics")
-                                            .child(pic.creationTime)
-                                            .delete();
-                                        Singleton()
-                                            .picsRef
-                                            .document(pic.id)
-                                            .delete();
-                                        Navigator.pop(context);
-                                        Navigator.pop(context);
-                                      } catch (err) {}
-                                    },
-                                    child: Text("WE",
-                                        style: TextStyle(
-                                            color:
-                                                Theme.of(context).errorColor))),
-                                FlatButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: const Text("NON ZBI"),
-                                ),
-                              ],
-                            );
-                          },
-                        )))
-          ],
-        ));
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: <Widget>[
+          Center(
+            child: Image.network(
+              pic.imageURL,
+              fit: BoxFit.contain,
+              loadingBuilder: (BuildContext context, Widget child,
+                  ImageChunkEvent loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes
+                        : null,
+                  ),
+                );
+              },
+            ),
+          ),
+          Positioned(
+              top: 50,
+              right: 30,
+              child: IconButton(
+                  icon: Icon(Icons.delete, color: Colors.redAccent),
+                  iconSize: 35,
+                  onPressed: () async => await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: const Text("Ca la tej ?"),
+                            actions: <Widget>[
+                              FlatButton(
+                                  onPressed: () {
+                                    try {
+                                      FirebaseStorage.instance
+                                          .ref()
+                                          .child("pics")
+                                          .child(pic.creationTime)
+                                          .delete();
+                                      Singleton()
+                                          .picsRef
+                                          .document(pic.id)
+                                          .delete();
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    } catch (err) {}
+                                  },
+                                  child: Text("WE",
+                                      style: TextStyle(
+                                          color:
+                                              Theme.of(context).errorColor))),
+                              FlatButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text("NON ZBI"),
+                              ),
+                            ],
+                          );
+                        },
+                      )))
+        ],
+      ),
+    );
   }
 }
