@@ -36,8 +36,6 @@ class _PicturesPageState extends State<PicturesPage>
               docs.documents[i].data['creationTime'],
               docs.documents[i].data['imageURL']));
         }
-        print(images.length);
-        print(pics.length);
       }
     });
     super.initState();
@@ -100,6 +98,11 @@ class _PicturesPageState extends State<PicturesPage>
         .add({"imageURL": pic.imageURL, "creationTime": pic.creationTime});
     pic.id = doc.documentID;
 
+    setState(() {
+      images.add(Image.file(image));
+      pics.add(pic);
+    });
+
     await Fluttertoast.showToast(
         msg: "c posté gone !",
         toastLength: Toast.LENGTH_SHORT,
@@ -121,11 +124,12 @@ class _PicturesPageState extends State<PicturesPage>
             if (loadingProgress == null) return child;
             return Center(
               child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes
-                    : null,
-              ),
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes
+                      : null,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).focusColor)),
             );
           },
         ),

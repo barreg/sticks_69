@@ -1,5 +1,6 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 import 'Models.dart';
 import 'Singleton.dart';
 
@@ -24,12 +25,11 @@ class _DisplayPictureState extends State<DisplayPicture> {
       body: Stack(
         children: <Widget>[
           Center(
-            child: Image.network(
-              pic.imageURL,
-              fit: BoxFit.contain,
-              loadingBuilder: (BuildContext context, Widget child,
-                  ImageChunkEvent loadingProgress) {
-                if (loadingProgress == null) return child;
+            child: PhotoView(
+              imageProvider: NetworkImage(pic.imageURL),
+              loadingBuilder:
+                  (BuildContext context, ImageChunkEvent loadingProgress) {
+                if (loadingProgress == null) return Container();
                 return Center(
                   child: CircularProgressIndicator(
                     value: loadingProgress.expectedTotalBytes != null

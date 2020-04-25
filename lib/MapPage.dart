@@ -13,7 +13,11 @@ class MapPage extends StatefulWidget {
   _MapPageState createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> {
+class _MapPageState extends State<MapPage> 
+   with AutomaticKeepAliveClientMixin<MapPage>{
+
+  @override
+  bool get wantKeepAlive => true;
   GoogleMapController _controller;
   static const LatLng _center = const LatLng(45.723849, 4.832572);
   MapType _currentMapType;
@@ -149,6 +153,7 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -180,6 +185,7 @@ class _MapPageState extends State<MapPage> {
         ),
         body: Stack(children: [
           GoogleMap(
+            zoomControlsEnabled: false,
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             onMapCreated: _onMapCreated,

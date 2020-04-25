@@ -46,6 +46,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<FirebaseUser> _loginWithFacebook() async {
     var facebookLogin = new FacebookLogin();
+    print("hahahahahahahahahahaahahahahahahahaa");
     var result = await facebookLogin.logIn(['email']);
 
     debugPrint(result.status.toString());
@@ -53,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
     if (result.status == FacebookLoginStatus.loggedIn) {
       AuthCredential credential = FacebookAuthProvider.getCredential(
           accessToken: result.accessToken.token);
-          // in case ur fucked, redownload GoogleServie-inf.plist
+          // in case ur fucked, redownload GoogleService-info.plist
       FirebaseUser user = await _auth.signInWithCredential(credential);
       return user;
     }
