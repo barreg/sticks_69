@@ -4,9 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sticks_69/LoadingBarrier.dart';
+import 'package:provider/provider.dart';
 import 'package:sticks_69/Singleton.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'DatabaseService.dart';
 import 'DisplayPicture.dart';
 import 'Models.dart';
 
@@ -21,23 +22,9 @@ class _PicturesPageState extends State<PicturesPage>
   bool get wantKeepAlive => true;
   List<CameraDescription> cameras = [];
   File _currentImage;
-  bool _bLoading = false;
-  List<Image> images = [];
-  List<PicDetails> pics = [];
 
   @override
   void initState() {
-    Singleton().picsRef.getDocuments().then((docs) {
-      if (docs.documents.isNotEmpty) {
-        for (int i = 0; i < docs.documents.length; i++) {
-          images.add(Image.network(docs.documents[i].data['imageURL']));
-          pics.add(new PicDetails(
-              docs.documents[i].documentID,
-              docs.documents[i].data['creationTime'],
-              docs.documents[i].data['imageURL']));
-        }
-      }
-    });
     super.initState();
   }
 
@@ -76,7 +63,6 @@ class _PicturesPageState extends State<PicturesPage>
     if (image == null) return;
     setState(() {
       _currentImage = image;
-      _bLoading = true;
     });
 
     StorageTaskSnapshot uploadPic = await FirebaseStorage.instance
@@ -89,19 +75,10 @@ class _PicturesPageState extends State<PicturesPage>
     String url = await uploadPic.ref.getDownloadURL();
     pic.imageURL = url;
 
-    setState(() {
-      _bLoading = false;
-    });
-
     DocumentReference doc = await Singleton()
         .picsRef
         .add({"imageURL": pic.imageURL, "creationTime": pic.creationTime});
     pic.id = doc.documentID;
-
-    setState(() {
-      images.add(Image.file(image));
-      pics.add(pic);
-    });
 
     await Fluttertoast.showToast(
         msg: "c posté gone !",
@@ -112,32 +89,6 @@ class _PicturesPageState extends State<PicturesPage>
         textColor: Colors.white,
         fontSize: 24.0);
     Navigator.pop(context);
-  }
-
-  Widget _image(PicDetails picDetails, Image image) {
-    return GestureDetector(
-        child: Image.network(
-          picDetails.imageURL,
-          fit: BoxFit.cover,
-          loadingBuilder: (BuildContext context, Widget child,
-              ImageChunkEvent loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(
-              child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes
-                      : null,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).focusColor)),
-            );
-          },
-        ),
-        onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DisplayPicture(picDetails, image),
-            )));
   }
 
   @override
@@ -160,18 +111,54 @@ class _PicturesPageState extends State<PicturesPage>
         ),
         body: Column(children: [
           Expanded(
-              child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                mainAxisSpacing: 4, crossAxisSpacing: 4, crossAxisCount: 3),
-            itemCount: images.length,
-            itemBuilder: (_, int index) {
-              return _image(pics[index], images[index]);
-            },
-          )),
-          LoadingBarrier(
-            text: "2 sec stp ...",
-            bIsLoading: _bLoading,
-          )
+              child: StreamBuilder<List<PicDetails>>(
+                  stream: Provider.of<DatabaseService>(context).streamPics(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<PicDetails>> snapshot) {
+                    if (!snapshot.hasData)
+                      return Center(child: CircularProgressIndicator());
+                    return GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            mainAxisSpacing: 4,
+                            crossAxisSpacing: 4,
+                            crossAxisCount: 3),
+                        itemCount: snapshot.data.length,
+                        itemBuilder: (_, int index) {
+                          final PicDetails pic = snapshot.data[index];
+                          return GestureDetector(
+                              child: Image.network(
+                                pic.imageURL,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes
+                                            : null,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Theme.of(context).focusColor)),
+                                  );
+                                },
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DisplayPicture(pic),
+                                    ));
+                              });
+                        });
+                  })),
         ]));
   }
 }

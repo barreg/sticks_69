@@ -8,8 +8,8 @@ class DatabaseService {
 
   static final CollectionReference userRef =
       Firestore.instance.collection("users");
-  static final CollectionReference logRef =
-      Firestore.instance.collection("logs");
+  static final CollectionReference picsRef = Firestore.instance.collection("pics");
+  static final CollectionReference sticksRef = Firestore.instance.collection("sticks");
 
   Stream<Userdata> streamUserdata() {
     return userRef
@@ -52,12 +52,6 @@ class DatabaseService {
         .map((snap) => Userdata.fromJson(snap.documentID, snap.data));
   }
 
-  
-
-  
-
- 
-
   Future<void> deleteFriend(String friendId) {
     return userRef
         .document(uid)
@@ -89,4 +83,29 @@ class DatabaseService {
       "numPoints": friend.numPoints
     });
   }
+
+  Stream<List<PicDetails>> streamPics() {
+    Stream<QuerySnapshot> snapshots;
+    snapshots = picsRef.snapshots();
+    
+    Stream<List<PicDetails>> result = snapshots.map((snap) => snap.documents
+        .map((task) => PicDetails.fromJson(task.documentID, task.data))
+        .toList());
+    return result;
+  }
+
+  Stream<List<StickDetails>> streamSticks() {
+    Stream<QuerySnapshot> snapshots;
+    snapshots = sticksRef.snapshots();
+    
+    Stream<List<StickDetails>> result = snapshots.map((snap) => snap.documents
+        .map((task) => StickDetails.fromJson(task.documentID, task.data))
+        .toList());
+    return result;
+  }
+
+  Future<void> deleteStick(String stickId) {
+    return sticksRef.document(stickId).delete();
+  }
+
 }

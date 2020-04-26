@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import 'package:sticks_69/Models.dart';
 import 'package:sticks_69/StickEditPage.dart';
+import 'DatabaseService.dart';
 import 'SettingsPage.dart';
-import 'Singleton.dart';
 import 'package:sticks_69/BenzPage.dart';
 
 class MapPage extends StatefulWidget {
@@ -13,9 +15,8 @@ class MapPage extends StatefulWidget {
   _MapPageState createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> 
-   with AutomaticKeepAliveClientMixin<MapPage>{
-
+class _MapPageState extends State<MapPage>
+    with AutomaticKeepAliveClientMixin<MapPage> {
   @override
   bool get wantKeepAlive => true;
   GoogleMapController _controller;
@@ -24,12 +25,12 @@ class _MapPageState extends State<MapPage>
   Position _currentPosition;
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
   MarkerId selectedMarker;
+  StickDetails selectedStick;
   bool _isSelected = false;
 
   @override
   void initState() {
     getCurrentLocation();
-    populateClients();
     super.initState();
   }
 
@@ -42,33 +43,17 @@ class _MapPageState extends State<MapPage>
     });
   }
 
-  void initMarker(request, requestId) {
-    var markerIdVal = requestId;
+  void initMarker(StickDetails stick) {
+    var markerIdVal = stick.id;
     final MarkerId markerId = MarkerId(markerIdVal);
 
     final Marker marker = Marker(
       markerId: markerId,
-      position: LatLng(
-          request['coordonnées'].latitude, request['coordonnées'].longitude),
-      infoWindow: InfoWindow(
-        title: request['name'],
-        snippet: request['description'],
-      ),
-      onTap: () => {setTrue(markerId)},
+      position: LatLng(stick.location.latitude, stick.location.longitude),
+      infoWindow: InfoWindow(title: stick.name, snippet: stick.description),
+      onTap: () => {setTrue(markerId, stick)},
     );
-    setState(() {
-      markers[markerId] = marker;
-    });
-  }
-
-  populateClients() {
-    Singleton().sticksRef.getDocuments().then((docs) {
-      if (docs.documents.isNotEmpty) {
-        for (int i = 0; i < docs.documents.length; i++) {
-          initMarker(docs.documents[i].data, docs.documents[i].documentID);
-        }
-      }
-    });
+    markers[markerId] = marker;
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -101,7 +86,7 @@ class _MapPageState extends State<MapPage>
           position: LatLng(latLng.latitude, latLng.longitude),
           icon: BitmapDescriptor.defaultMarker,
           infoWindow: InfoWindow(title: stick.name, snippet: stick.description),
-          onTap: () => {setTrue(markerId)},
+          onTap: () => {setTrue(markerId, stick)},
         );
         markers[markerId] = marker;
       });
@@ -138,17 +123,55 @@ class _MapPageState extends State<MapPage>
     );
   }
 
-  void setTrue(MarkerId markerId) {
+  void setTrue(MarkerId markerId, StickDetails stick) {
     setState(() {
       _isSelected = true;
       selectedMarker = markerId;
+      selectedStick = stick;
     });
   }
 
   void setFalse(LatLng latLng) {
     setState(() {
       _isSelected = false;
+      selectedStick = null;
     });
+  }
+
+  void _sureDeleteStick(StickDetails stick) async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: const Text("Il s'est fait tej ?"),
+            actions: <Widget>[
+              FlatButton(
+                  onPressed: () async {
+                    _deleteStick(selectedStick);
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text("WE",
+                      style: TextStyle(color: Theme.of(context).errorColor))),
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text("NON ZBI"),
+              ),
+            ],
+          );
+        });
+  }
+
+  void _deleteStick(StickDetails stick) async {
+    await Provider.of<DatabaseService>(context, listen: false)
+        .deleteStick(stick.id);
+    await Fluttertoast.showToast(
+        msg: "Ciao le stick !",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIos: 1,
+        backgroundColor: Theme.of(context).buttonColor,
+        textColor: Colors.white,
+        fontSize: 24.0);
   }
 
   @override
@@ -184,20 +207,31 @@ class _MapPageState extends State<MapPage>
           ],
         ),
         body: Stack(children: [
-          GoogleMap(
-            zoomControlsEnabled: false,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: _center,
-              zoom: 15.0,
-            ),
-            mapType: _currentMapType,
-            markers: Set<Marker>.of(markers.values),
-            onTap: setFalse,
-            onLongPress: _onAddMarkerButtonPressed,
-          ),
+          StreamBuilder<List<StickDetails>>(
+              stream: Provider.of<DatabaseService>(context).streamSticks(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<StickDetails>> snapshot) {
+                if (!snapshot.hasData)
+                  return Center(child: CircularProgressIndicator());
+                for (int index = 0; index < snapshot.data.length; index++) {
+                  final StickDetails stick = snapshot.data[index];
+                  initMarker(stick);
+                }
+                return GoogleMap(
+                  zoomControlsEnabled: false,
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: false,
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: _center,
+                    zoom: 15.0,
+                  ),
+                  mapType: _currentMapType,
+                  markers: Set<Marker>.of(markers.values),
+                  onTap: setFalse,
+                  onLongPress: _onAddMarkerButtonPressed,
+                );
+              }),
           Padding(
               padding: EdgeInsets.all(16.0),
               child: Align(
@@ -219,38 +253,7 @@ class _MapPageState extends State<MapPage>
                         size: 50,
                         color: Theme.of(context).primaryColor,
                       ),
-                      onPressed: () async => await showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                content: const Text("Le stick est mort ?"),
-                                actions: <Widget>[
-                                  FlatButton(
-                                      onPressed: () {
-                                        try {
-                                          Singleton()
-                                              .sticksRef
-                                              .document(selectedMarker.value)
-                                              .delete();
-                                          Navigator.pop(context);
-                                          setState(() {
-                                            markers.remove(selectedMarker);
-                                          });
-                                        } catch (err) {}
-                                      },
-                                      child: Text("WE",
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .errorColor))),
-                                  FlatButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(false),
-                                    child: const Text("NON ZBI"),
-                                  ),
-                                ],
-                              );
-                            },
-                          )))
+                      onPressed: () => _sureDeleteStick(selectedStick)))
               : Container(),
         ]));
   }

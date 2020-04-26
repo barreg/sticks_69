@@ -1,23 +1,21 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:photo_view/photo_view.dart';
 import 'Models.dart';
 import 'Singleton.dart';
 
 class DisplayPicture extends StatefulWidget {
   final PicDetails pic;
-  final Image image;
-  DisplayPicture(PicDetails picDetails, Image image)
-      : this.pic = picDetails,
-        this.image = image;
+  DisplayPicture(PicDetails pic)
+      : this.pic = pic;
   @override
-  _DisplayPictureState createState() => _DisplayPictureState(pic, image);
+  _DisplayPictureState createState() => _DisplayPictureState(pic);
 }
 
 class _DisplayPictureState extends State<DisplayPicture> {
-  _DisplayPictureState(this.pic, this.image);
+  _DisplayPictureState(this.pic);
   PicDetails pic;
-  Image image;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,8 +52,8 @@ class _DisplayPictureState extends State<DisplayPicture> {
                             content: const Text("Ca la tej ?"),
                             actions: <Widget>[
                               FlatButton(
-                                  onPressed: () {
-                                    try {
+                                  onPressed: () async {
+                                    try {                                                                         
                                       FirebaseStorage.instance
                                           .ref()
                                           .child("pics")
@@ -65,6 +63,16 @@ class _DisplayPictureState extends State<DisplayPicture> {
                                           .picsRef
                                           .document(pic.id)
                                           .delete();
+
+                                      await Fluttertoast.showToast(
+                                          msg: "c taillé gone !",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          timeInSecForIos: 1,
+                                          backgroundColor:
+                                              Theme.of(context).buttonColor,
+                                          textColor: Colors.white,
+                                          fontSize: 24.0);
                                       Navigator.pop(context);
                                       Navigator.pop(context);
                                     } catch (err) {}

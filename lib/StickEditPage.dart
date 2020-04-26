@@ -71,7 +71,7 @@ class _StickEditPageState extends State<StickEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Pimp ton Stick", textScaleFactor: 1.5),
+          title: Text("Pimp ton Stick", textScaleFactor: 1.2),
           actions: <Widget>[
             FlatButton(
                 child: Icon(Icons.check,
