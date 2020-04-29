@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +8,8 @@ import 'package:sticks_69/StickEditPage.dart';
 import 'DatabaseService.dart';
 import 'SettingsPage.dart';
 import 'package:sticks_69/BenzPage.dart';
+
+import 'StickDetailsPage.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -20,18 +21,19 @@ class _MapPageState extends State<MapPage>
   @override
   bool get wantKeepAlive => true;
   GoogleMapController _controller;
+  List<StickDetails> sticks = [];
   static const LatLng _center = const LatLng(45.723849, 4.832572);
   MapType _currentMapType;
   Position _currentPosition;
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
   MarkerId selectedMarker;
   StickDetails selectedStick;
-  bool _isSelected = false;
+  String uid;
 
   @override
   void initState() {
-    getCurrentLocation();
     super.initState();
+    getCurrentLocation();
   }
 
   void getCurrentLocation() async {
@@ -50,8 +52,18 @@ class _MapPageState extends State<MapPage>
     final Marker marker = Marker(
       markerId: markerId,
       position: LatLng(stick.location.latitude, stick.location.longitude),
-      infoWindow: InfoWindow(title: stick.name, snippet: stick.description),
-      onTap: () => {setTrue(markerId, stick)},
+      infoWindow: InfoWindow(
+          title: stick.name,
+          snippet: stick.description,
+          onTap: () async {
+            final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => StickDetailsPage(stick)));
+            if (result != null && result) {
+              markers.remove(markerId);
+            }
+          }),
     );
     markers[markerId] = marker;
   }
@@ -71,25 +83,14 @@ class _MapPageState extends State<MapPage>
   }
 
   void _onAddMarkerButtonPressed(LatLng latLng) async {
+    StickDetails stick = StickDetails.fromJson(null, new Map());
+    stick.location = GeoPoint(latLng.latitude, latLng.longitude);
+    stick.creator = Provider.of<Userdata>(context, listen: false).uid;
     final result = await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => StickEditPage(
-                StickDetails.fromJson(null, new Map()),
-                GeoPoint(latLng.latitude, latLng.longitude))));
+        context, MaterialPageRoute(builder: (context) => StickEditPage(stick)));
     if (result != null) {
       StickDetails stick = result;
-      setState(() {
-        final MarkerId markerId = MarkerId(stick.id);
-        final Marker marker = Marker(
-          markerId: markerId,
-          position: LatLng(latLng.latitude, latLng.longitude),
-          icon: BitmapDescriptor.defaultMarker,
-          infoWindow: InfoWindow(title: stick.name, snippet: stick.description),
-          onTap: () => {setTrue(markerId, stick)},
-        );
-        markers[markerId] = marker;
-      });
+      initMarker(stick);
     }
   }
 
@@ -125,7 +126,6 @@ class _MapPageState extends State<MapPage>
 
   void setTrue(MarkerId markerId, StickDetails stick) {
     setState(() {
-      _isSelected = true;
       selectedMarker = markerId;
       selectedStick = stick;
     });
@@ -133,45 +133,17 @@ class _MapPageState extends State<MapPage>
 
   void setFalse(LatLng latLng) {
     setState(() {
-      _isSelected = false;
       selectedStick = null;
     });
   }
 
-  void _sureDeleteStick(StickDetails stick) async {
-    await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: const Text("Il s'est fait tej ?"),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () async {
-                    _deleteStick(selectedStick);
-                    Navigator.of(context).pop(true);
-                  },
-                  child: Text("WE",
-                      style: TextStyle(color: Theme.of(context).errorColor))),
-              FlatButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text("NON ZBI"),
-              ),
-            ],
-          );
-        });
-  }
-
-  void _deleteStick(StickDetails stick) async {
-    await Provider.of<DatabaseService>(context, listen: false)
-        .deleteStick(stick.id);
-    await Fluttertoast.showToast(
-        msg: "Ciao le stick !",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIos: 1,
-        backgroundColor: Theme.of(context).buttonColor,
-        textColor: Colors.white,
-        fontSize: 24.0);
+  Set<Marker> _markers() {
+    Provider.of<DatabaseService>(context).streamSticks().listen((sticks) {
+      for (StickDetails stick in sticks){
+        initMarker(stick);
+      }
+    });
+    return Set.of(markers.values);
   }
 
   @override
@@ -207,31 +179,20 @@ class _MapPageState extends State<MapPage>
           ],
         ),
         body: Stack(children: [
-          StreamBuilder<List<StickDetails>>(
-              stream: Provider.of<DatabaseService>(context).streamSticks(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<StickDetails>> snapshot) {
-                if (!snapshot.hasData)
-                  return Center(child: CircularProgressIndicator());
-                for (int index = 0; index < snapshot.data.length; index++) {
-                  final StickDetails stick = snapshot.data[index];
-                  initMarker(stick);
-                }
-                return GoogleMap(
-                  zoomControlsEnabled: false,
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition: CameraPosition(
-                    target: _center,
-                    zoom: 15.0,
-                  ),
-                  mapType: _currentMapType,
-                  markers: Set<Marker>.of(markers.values),
-                  onTap: setFalse,
-                  onLongPress: _onAddMarkerButtonPressed,
-                );
-              }),
+          GoogleMap(
+            zoomControlsEnabled: false,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: _center,
+              zoom: 15.0,
+            ),
+            mapType: _currentMapType,
+            markers: _markers(),
+            onTap: setFalse,
+            onLongPress: _onAddMarkerButtonPressed,
+          ),
           Padding(
               padding: EdgeInsets.all(16.0),
               child: Align(
@@ -243,18 +204,6 @@ class _MapPageState extends State<MapPage>
                     ),
                     button(_goToMyLocation, Icons.my_location, 3),
                   ]))),
-          _isSelected
-              ? Positioned(
-                  top: 20,
-                  right: 20,
-                  child: IconButton(
-                      icon: Icon(
-                        Icons.delete,
-                        size: 50,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      onPressed: () => _sureDeleteStick(selectedStick)))
-              : Container(),
         ]));
   }
 }

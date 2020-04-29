@@ -46,7 +46,6 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<FirebaseUser> _loginWithFacebook() async {
     var facebookLogin = new FacebookLogin();
-    print("hahahahahahahahahahaahahahahahahahaa");
     var result = await facebookLogin.logIn(['email']);
 
     debugPrint(result.status.toString());

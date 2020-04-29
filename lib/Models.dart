@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class Userdata {
   final String uid;
   String name;
@@ -37,12 +36,14 @@ class Friend {
 
 class StickDetails {
   String id;
+  String creator;
   String name;
   String description;
   GeoPoint location;
 
   StickDetails(
     this.id,
+    this.creator,
     this.name,
     this.description,
     this.location,
@@ -51,6 +52,7 @@ class StickDetails {
   factory StickDetails.fromJson(id, Map<String, dynamic> json) {
     return StickDetails(
       id,
+      json["creator"] ?? "",
       json["name"] ?? "",
       json["description"] ?? "",
       json["coordonnées"] ?? null,
@@ -60,12 +62,14 @@ class StickDetails {
 
 class PicDetails {
   String id;
+  String creator;
   String creationTime;
   String imageURL;
 
-  PicDetails(this.id, this.creationTime, this.imageURL);
+  PicDetails(this.id, this.creator, this.creationTime, this.imageURL);
 
   factory PicDetails.fromJson(id, Map<String, dynamic> json) {
-    return PicDetails(id, json["creationTime"] ?? "", json["imageURL"] ?? "");
+    return PicDetails(id, json["creator"] ?? "", json["creationTime"] ?? "",
+        json["imageURL"] ?? "");
   }
 }

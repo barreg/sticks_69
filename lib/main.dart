@@ -1,13 +1,8 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:sticks_69/AuthWidget.dart';
 import 'AuthWidgetBuilder.dart';
 
-List<CameraDescription> cameras;
-
-void main() {
-  runApp(new MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override

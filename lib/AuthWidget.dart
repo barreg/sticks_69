@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sticks_69/DatabaseService.dart';
 import 'package:sticks_69/LoginPage.dart';
 import 'package:sticks_69/StartPage.dart';
-
+import 'AccountSetupPage.dart';
+import 'Models.dart';
 
 /// Builds the signed-in or non signed-in UI, depending on the user snapshot.
 /// This widget should be below the [MaterialApp].
@@ -15,7 +19,16 @@ class AuthWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (userSnapshot.connectionState == ConnectionState.active) {
       if (userSnapshot.hasData) {
-        return StartPage();
+        var docRef = Firestore.instance
+            .collection("users")
+            .document(userSnapshot.data.uid);
+        docRef.get().then((doc) {
+          if (doc.exists) {
+            return StartPage();
+          } else {
+            return AccountSetupPage();
+          }
+        });
       } else
         return LoginPage();
     }

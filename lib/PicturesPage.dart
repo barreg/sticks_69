@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:sticks_69/Singleton.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'DatabaseService.dart';
 import 'DisplayPicture.dart';
@@ -18,7 +16,7 @@ class PicturesPage extends StatefulWidget {
 
 class _PicturesPageState extends State<PicturesPage>
     with AutomaticKeepAliveClientMixin<PicturesPage> {
-  @override
+  //@override
   bool get wantKeepAlive => true;
   List<CameraDescription> cameras = [];
   File _currentImage;
@@ -58,8 +56,10 @@ class _PicturesPageState extends State<PicturesPage>
   void _pickImage(ImageSource source) async {
     PicDetails pic = new PicDetails.fromJson(null, new Map());
     pic.creationTime = DateTime.now().toIso8601String();
+    pic.creator = Provider.of<Userdata>(context, listen: false).uid;
 
     File image = await ImagePicker.pickImage(source: source);
+    
     if (image == null) return;
     setState(() {
       _currentImage = image;
@@ -75,10 +75,8 @@ class _PicturesPageState extends State<PicturesPage>
     String url = await uploadPic.ref.getDownloadURL();
     pic.imageURL = url;
 
-    DocumentReference doc = await Singleton()
-        .picsRef
-        .add({"imageURL": pic.imageURL, "creationTime": pic.creationTime});
-    pic.id = doc.documentID;
+    pic.id = await Provider.of<DatabaseService>(context, listen: false)
+          .createPic(pic);
 
     await Fluttertoast.showToast(
         msg: "c posté gone !",

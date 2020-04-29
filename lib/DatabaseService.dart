@@ -6,10 +6,11 @@ class DatabaseService {
   DatabaseService({@required this.uid}) : assert(uid != null);
   final String uid;
 
-  static final CollectionReference userRef =
-      Firestore.instance.collection("users");
+  static final CollectionReference userRef = Firestore.instance.collection("users");
   static final CollectionReference picsRef = Firestore.instance.collection("pics");
   static final CollectionReference sticksRef = Firestore.instance.collection("sticks");
+  
+
 
   Stream<Userdata> streamUserdata() {
     return userRef
@@ -21,9 +22,10 @@ class DatabaseService {
   Future<void> updateUserdata(Userdata userdata) {
     return userRef.document(uid).setData({
       'name': userdata.name,
-      'name_insensitive': userdata.name?.toLowerCase(),
       'description': userdata.description,
-      'photoURL': userdata.photoURL
+      'photoURL': userdata.photoURL,
+      'numPoints': userdata.numPoints,
+      'isAdmin': userdata.isAdmin
     });
   }
 
@@ -103,9 +105,40 @@ class DatabaseService {
         .toList());
     return result;
   }
+  Future<String> createStick(StickDetails stick) async {
+    DocumentReference doc = await sticksRef.add({
+      "coordonnées": stick.location,
+      "name": stick.name,
+      "description": stick.description,
+      "creator": stick.creator
+    });
+    return doc.documentID;
+  }
 
-  Future<void> deleteStick(String stickId) {
-    return sticksRef.document(stickId).delete();
+  Future<void> updateStick(StickDetails stick) async {
+    await sticksRef.document(stick.id).updateData({
+      "coordonnées": stick.location,
+      "name": stick.name,
+      "description": stick.description,
+      "creator": stick.creator
+    });
+  }
+
+  Future<void> deleteStick(StickDetails stick) {
+    return sticksRef.document(stick.id).delete();
+  }
+
+  Future<String> createPic(PicDetails pic) async {
+    DocumentReference doc = await picsRef.add({
+      "imageURL": pic.imageURL, 
+      "creator" : pic.creator,
+      "creationTime": pic.creationTime
+    });
+    return doc.documentID;
+  }
+
+  Future<void> deletePic(PicDetails pic) {
+    return picsRef.document(pic.id).delete();
   }
 
 }

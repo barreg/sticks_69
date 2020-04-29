@@ -1,24 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sticks_69/Models.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'Singleton.dart';
+import 'DatabaseService.dart';
 
 class StickEditPage extends StatefulWidget {
   final StickDetails stick;
-  final GeoPoint position;
-  StickEditPage(StickDetails stickDetails, GeoPoint myPositoin)
-      : this.stick = stickDetails,
-        this.position = myPositoin;
+  StickEditPage(StickDetails stickDetails) : this.stick = stickDetails;
 
   @override
-  _StickEditPageState createState() => _StickEditPageState(stick, position);
+  _StickEditPageState createState() => _StickEditPageState(stick);
 }
 
 class _StickEditPageState extends State<StickEditPage> {
-  _StickEditPageState(this.stick, this.position);
+  _StickEditPageState(this.stick);
   final StickDetails stick;
-  final GeoPoint position;
   String _error;
   String _error2;
   TextEditingController _nameController;
@@ -48,23 +44,23 @@ class _StickEditPageState extends State<StickEditPage> {
     }
     stick.name = _nameController.text;
     stick.description = _descriptionController.text;
-    stick.location = position;
-    DocumentReference doc = await Singleton().sticksRef.add({
-      "coordonnées":
-          new GeoPoint(stick.location.latitude, stick.location.longitude),
-      "name": stick.name,
-      "description": stick.description
-    });
-    stick.id = doc.documentID;
-    await Fluttertoast.showToast(
-        msg: "c stické gone !",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIos: 1,
-        backgroundColor: Theme.of(context).buttonColor,
-        textColor: Colors.white,
-        fontSize: 24.0);
-    Navigator.pop(context, stick);
+    if (stick.id == null) {
+      stick.id = await Provider.of<DatabaseService>(context, listen: false)
+          .createStick(stick);
+      await Fluttertoast.showToast(
+          msg: "c stické gone !",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIos: 1,
+          backgroundColor: Theme.of(context).buttonColor,
+          textColor: Colors.white,
+          fontSize: 24.0);
+      Navigator.pop(context, stick);
+    } else {
+      await Provider.of<DatabaseService>(context, listen: false)
+          .updateStick(stick);
+      Navigator.pop(context);
+    }
   }
 
   @override
