@@ -74,23 +74,27 @@ class _ProfilePageState extends State<ProfilePage> {
                 label: Text("Save"),
               )
             : null,
-        appBar: AppBar(title: Text('Profil'), actions: <Widget>[
-          _bEditing || Provider.of<Userdata>(context).uid != this.uid
-              ? Container()
-              : IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    setState(() {
-                      _bEditing = true;
-                    });
-                  },
-                ),
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SettingsPage())),
-          )
-        ]),
+        appBar: AppBar(
+            title: Text('Profil',
+                textScaleFactor: 1.5,
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            actions: <Widget>[
+              _bEditing || Provider.of<Userdata>(context).uid != this.uid
+                  ? Container()
+                  : IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        setState(() {
+                          _bEditing = true;
+                        });
+                      },
+                    ),
+              IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SettingsPage())),
+              )
+            ]),
         body: ListView(
           padding: EdgeInsets.fromLTRB(5, 40, 5, 20),
           children: <Widget>[
@@ -123,12 +127,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         if (!_bEditing) return;
                         addImage();
                       },
-                      child: !_bLoading ? Center(
-                        child: Hero(
-                          tag: heroName,
-                          child: UserAvatar(url: photoURL, radius: 120),
-                        ),
-                      ): Center(child: CircularProgressIndicator()),
+                      child: !_bLoading
+                          ? Center(
+                              child: Hero(
+                                tag: heroName,
+                                child: UserAvatar(url: photoURL, radius: 140),
+                              ),
+                            )
+                          : Center(child: CircularProgressIndicator()),
                     ),
                     SizedBox(height: 20),
                     TextField(

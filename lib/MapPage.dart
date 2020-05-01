@@ -77,11 +77,13 @@ class _MapPageState extends State<MapPage>
   }
 
   void _onMapTypeButtonPressed() {
+    try{
     setState(() {
       _currentMapType = _currentMapType == MapType.normal
           ? MapType.satellite
           : MapType.normal;
     });
+    } catch (err){}
   }
 
   void _onAddMarkerButtonPressed(LatLng latLng) async {
