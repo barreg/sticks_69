@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sticks_69/DatabaseService.dart';
+import 'package:sticks_69/Models.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -53,9 +57,24 @@ class _LoginPageState extends State<LoginPage> {
     if (result.status == FacebookLoginStatus.loggedIn) {
       AuthCredential credential = FacebookAuthProvider.getCredential(
           accessToken: result.accessToken.token);
-          // in case ur fucked, redownload GoogleService-info.plist
+      // in case ur fucked, redownload GoogleService-info.plist
+
       FirebaseUser user = await _auth.signInWithCredential(credential);
-      return user;
+      var docRef = Firestore.instance.collection("users").document(user.uid);
+      docRef.get().then((doc) {
+        if (doc.exists) {
+          return user;
+        } else {
+          Firestore.instance.collection("users").document(user.uid).setData({
+            'name': "",
+            'description': "",
+            'photoURL': "",
+            'numPoints': 0,
+            'isAdmin': false
+          });
+          return user;
+        }
+      });
     }
     return null;
   }

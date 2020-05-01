@@ -19,16 +19,12 @@ class AuthWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (userSnapshot.connectionState == ConnectionState.active) {
       if (userSnapshot.hasData) {
-        var docRef = Firestore.instance
-            .collection("users")
-            .document(userSnapshot.data.uid);
-        docRef.get().then((doc) {
-          if (doc.exists) {
-            return StartPage();
-          } else {
-            return AccountSetupPage();
-          }
-        });
+        try {
+        if (Provider.of<Userdata>(context).name == "") {         
+          return AccountSetupPage();
+        }
+        return StartPage();
+        } catch (err) {}
       } else
         return LoginPage();
     }

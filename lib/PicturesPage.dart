@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'BenzPage.dart';
 import 'DatabaseService.dart';
 import 'DisplayPicture.dart';
 import 'Models.dart';
@@ -59,7 +60,7 @@ class _PicturesPageState extends State<PicturesPage>
     pic.creator = Provider.of<Userdata>(context, listen: false).uid;
 
     File image = await ImagePicker.pickImage(source: source);
-    
+
     if (image == null) return;
     setState(() {
       _currentImage = image;
@@ -76,7 +77,7 @@ class _PicturesPageState extends State<PicturesPage>
     pic.imageURL = url;
 
     pic.id = await Provider.of<DatabaseService>(context, listen: false)
-          .createPic(pic);
+        .createPic(pic);
 
     await Fluttertoast.showToast(
         msg: "c posté gone !",
@@ -94,6 +95,22 @@ class _PicturesPageState extends State<PicturesPage>
     super.build(context);
     return Scaffold(
         appBar: AppBar(
+          leading: InkWell(
+              child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                  child: Hero(
+                    tag: "benz",
+                    child: CircleAvatar(
+                        radius: 18,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage: AssetImage("assets/Benz.jpeg")),
+                  )),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BenzPage()),
+                );
+              }),
           title: Text('Photos',
               textScaleFactor: 1.5,
               style: TextStyle(fontWeight: FontWeight.bold)),
@@ -151,8 +168,7 @@ class _PicturesPageState extends State<PicturesPage>
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          DisplayPicture(pic),
+                                      builder: (context) => DisplayPicture(pic),
                                     ));
                               });
                         });

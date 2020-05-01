@@ -26,7 +26,7 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
-        title: Text("Account Setup"),
+        title: Text("Fais ton Setup boi"),
       ),
       body: Stack(
         children: <Widget>[
@@ -49,11 +49,11 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
             children: <Widget>[
               RaisedButton(
                 onPressed: onStepContinue,
-                child: const Text('Continue'),
+                child: const Text('Suivant'),
               ),
               FlatButton(
                 onPressed: onStepCancel,
-                child: const Text('Back'),
+                child: const Text('Précédent'),
               ),
             ],
           );
@@ -68,7 +68,7 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                 _currentStep++;
                 _nameError = null;
               } else
-                _nameError = "Please enter a name.";
+                _nameError = "Mets ton blaz plo";
             } else if (_currentStep == 1) {
               _currentStep++;
             } else if (_currentStep == 2) {
@@ -78,7 +78,7 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
         },
         steps: [
           Step(
-            title: Text("Full Name"),
+            title: Text("Ton Blaz"),
             subtitle: _fullnameController.text != ""
                 ? Text(_fullnameController.text)
                 : null,
@@ -90,11 +90,11 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
               textCapitalization: TextCapitalization.words,
               controller: _fullnameController,
               decoration:
-                  InputDecoration(hintText: "Full Name", errorText: _nameError),
+                  InputDecoration(hintText: "Jean-Michel69", errorText: _nameError),
             ),
           ),
           Step(
-            title: Text("Description (Optional)"),
+            title: Text("Description"),
             subtitle: _descriptionController.text != ""
                 ? Text(_descriptionController.text)
                 : null,
@@ -105,11 +105,11 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
             content: TextField(
               textCapitalization: TextCapitalization.words,
               controller: _descriptionController,
-              decoration: InputDecoration(hintText: "Description"),
+              decoration: InputDecoration(hintText: "Décris toi vf"),
             ),
           ),
           Step(
-            title: Text("Image (Optional)"),
+            title: Text("Image (Optionel)"),
             isActive: _currentStep == 2,
             state:
                 _croppedPath == null ? StepState.indexed : StepState.complete,
@@ -137,7 +137,7 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                   : Image.asset("assets/default_user.png",
                       height: 100, width: 100),
               FlatButton.icon(
-                  label: Text("Select from Library"),
+                  label: Text("De mes photos"),
                   icon: Icon(Icons.photo_library),
                   onPressed: () {
                     _importImageFromGallery();
@@ -192,7 +192,7 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
 
   _submitData() async {
     String url;
-    Userdata user = Provider.of<Userdata>(context);
+    Userdata user = Provider.of<Userdata>(context, listen: false);
     if (_croppedPath != null) {
       setState(() {
         this._bLoading = true;
@@ -213,7 +213,6 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
 
     Userdata userdata = new Userdata(user.uid, _fullnameController.text,
         _descriptionController.text, url, 0, false);
-    await Provider.of<DatabaseService>(context).updateUserdata(userdata);
-    Navigator.pop(context);
+    await Provider.of<DatabaseService>(context, listen: false).updateUserdata(userdata);
   }
 }

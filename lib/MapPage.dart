@@ -6,10 +6,12 @@ import 'package:provider/provider.dart';
 import 'package:sticks_69/Models.dart';
 import 'package:sticks_69/StickEditPage.dart';
 import 'DatabaseService.dart';
+import 'ProfilePage.dart';
 import 'SettingsPage.dart';
 import 'package:sticks_69/BenzPage.dart';
 
 import 'StickDetailsPage.dart';
+import 'UserAvatar.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -139,11 +141,15 @@ class _MapPageState extends State<MapPage>
 
   Set<Marker> _markers() {
     Provider.of<DatabaseService>(context).streamSticks().listen((sticks) {
-      for (StickDetails stick in sticks){
+      for (StickDetails stick in sticks) {
         initMarker(stick);
       }
     });
     return Set.of(markers.values);
+  }
+
+  Widget _imageForLogURL(String url) {
+    return UserAvatar(url: url, radius: 20);
   }
 
   @override
@@ -151,31 +157,29 @@ class _MapPageState extends State<MapPage>
     super.build(context);
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-              onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SettingsPage())),
-              icon: Icon(
-                Icons.settings,
-                size: 40,
-              )),
           title: Text('Sticks_69',
               textScaleFactor: 1.5,
               style: TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: Theme.of(context).primaryColor,
           actions: <Widget>[
-            Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: GestureDetector(
-                  child: Container(
-                      decoration: BoxDecoration(shape: BoxShape.circle),
-                      child: CircleAvatar(
-                          maxRadius: 23,
-                          backgroundImage: AssetImage("assets/Benz.jpeg"))),
-                  onTap: () => Navigator.push(
+            InkWell(
+                child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                    child: Hero(
+                      tag: "profile",
+                      child: _imageForLogURL(
+                          Provider.of<Userdata>(context)?.photoURL),
+                    )),
+                onTap: () {
+                  Userdata userdata =
+                      Provider.of<Userdata>(context, listen: false);
+                  Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => BenzPage()),
-                  ),
-                ))
+                    MaterialPageRoute(
+                        builder: (context) => ProfilePage(
+                            userdata.uid, userdata.photoURL, userdata.name)),
+                  );
+                })
           ],
         ),
         body: Stack(children: [

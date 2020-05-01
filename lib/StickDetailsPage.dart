@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:sticks_69/Models.dart';
 import 'DatabaseService.dart';
 import 'StickEditPage.dart';
+import 'UserAvatar.dart';
 
 class StickDetailsPage extends StatefulWidget {
   final StickDetails stick;
@@ -40,7 +41,8 @@ class _StickDetailsPageState extends State<StickDetailsPage> {
   }
 
   void _deleteStick(StickDetails stick) async {
-    await Provider.of<DatabaseService>(context, listen: false).deleteStick(stick);
+    await Provider.of<DatabaseService>(context, listen: false)
+        .deleteStick(stick);
     await Fluttertoast.showToast(
         msg: "Ciao le stick !",
         toastLength: Toast.LENGTH_SHORT,
@@ -55,6 +57,7 @@ class _StickDetailsPageState extends State<StickDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
           title: Text(stick.name),
           actions: <Widget>[
@@ -86,10 +89,10 @@ class _StickDetailsPageState extends State<StickDetailsPage> {
                     Center(
                       child: Container(
                           decoration: BoxDecoration(shape: BoxShape.circle),
-                          child: CircleAvatar(
-                              maxRadius: 175,
-                              backgroundImage:
-                                  NetworkImage(snapshot.data.photoURL))),
+                          child: UserAvatar(
+                            url: snapshot.data.photoURL,
+                            radius: 175,
+                          )),
                     ),
                     SizedBox(height: 30),
                     Text(
@@ -98,7 +101,7 @@ class _StickDetailsPageState extends State<StickDetailsPage> {
                     ),
                     Text(
                       snapshot.data.name,
-                      textScaleFactor: 1.5,
+                      textScaleFactor: 2,
                       style: TextStyle(color: Theme.of(context).buttonColor),
                     ),
                     SizedBox(height: 20)
