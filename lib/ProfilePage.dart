@@ -27,6 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String photoURL;
   bool _bEditing = false;
   bool _bLoading = false;
+  File _croppedPath;
   int numPoints;
   final TextEditingController _nameController = new TextEditingController();
   final TextEditingController _descriptionController =
@@ -55,8 +56,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
-    final _height = MediaQuery.of(context).size.height;
+    // final _width = MediaQuery.of(context).size.width;
+    // final _height = MediaQuery.of(context).size.height;
     return Scaffold(
         resizeToAvoidBottomPadding: false,
         backgroundColor: Theme.of(context).backgroundColor,
@@ -122,12 +123,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         if (!_bEditing) return;
                         addImage();
                       },
-                      child: Center(
+                      child: !_bLoading ? Center(
                         child: Hero(
                           tag: heroName,
                           child: UserAvatar(url: photoURL, radius: 120),
                         ),
-                      ),
+                      ): Center(child: CircularProgressIndicator()),
                     ),
                     SizedBox(height: 20),
                     TextField(
@@ -206,23 +207,17 @@ class _ProfilePageState extends State<ProfilePage> {
                   ]),
                 );
               },
-            ),
-            new LoadingBarrier(
-              text: "Loading...",
-              bIsLoading: _bLoading,
-            ),
+            )
           ],
         ));
   }
 
   void updateUserData() async {
-    Userdata user = Provider.of<Userdata>(context);
-    Firestore.instance.collection("users").document(user.uid).setData({
-      "name": _nameController.text,
-      "name_insensitive": _nameController.text.toLowerCase(),
-      "description": _descriptionController.text,
-      "photoURL": photoURL
-    }, merge: true);
+    Userdata user = Provider.of<Userdata>(context, listen: false);
+    user.description = _descriptionController.text;
+    user.name = _nameController.text;
+    user.photoURL = photoURL;
+    Provider.of<DatabaseService>(context, listen: false).updateUserdata(user);
   }
 
   void addImage() {
@@ -251,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   title: Text("Select from Images"),
                   onTap: () {
                     Navigator.pop(context);
-                    importImageFromGallery(ImageSource.gallery);
+                    _importImageFromGallery(ImageSource.gallery);
                   }),
               new ListTile(
                   leading: Icon(Icons.camera_alt,
@@ -259,7 +254,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   title: Text("Take a Photo"),
                   onTap: () {
                     Navigator.pop(context);
-                    importImageFromGallery(ImageSource.camera);
+                    _importImageFromGallery(ImageSource.camera);
                   }),
               //UserData.accessToken==null?Container():new ListTile(leading: Icon(MdiIcons.facebook, color: Colors.black), title: Text("Import from Facebook"),onTap: () {
               //Navigator.pop(context);
@@ -273,16 +268,12 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  importImageFromGallery(ImageSource source) async {
+  _importImageFromGallery(ImageSource source) async {
     File file = await ImagePicker.pickImage(source: source);
     if (file == null) return;
 
-    prepareImageForUpload(file.path);
-  }
-
-  void prepareImageForUpload(String path) async {
     File croppedFile = await ImageCropper.cropImage(
-      sourcePath: path,
+      sourcePath: file.path,
       androidUiSettings: AndroidUiSettings(
           toolbarColor: Theme.of(context).primaryColor,
           cropFrameColor: Theme.of(context).primaryColor,
@@ -302,22 +293,27 @@ class _ProfilePageState extends State<ProfilePage> {
     if (croppedFile == null) return;
 
     setState(() {
+      this._croppedPath = croppedFile;
       this._bLoading = true;
     });
-    Userdata user = Provider.of<Userdata>(context);
-    StorageTaskSnapshot task = await FirebaseStorage.instance
-        .ref()
-        .child("users")
-        .child(user.uid)
-        .child("photo")
-        .putFile(croppedFile)
-        .onComplete;
-    String url = await task.ref.getDownloadURL();
 
-    setState(() {
-      this.photoURL = url;
-      this._bLoading = false;
-    });
+    Userdata user = Provider.of<Userdata>(context, listen: false);
+    if (_croppedPath != null) {
+      StorageTaskSnapshot task = await FirebaseStorage.instance
+          .ref()
+          .child("users")
+          .child(user.uid)
+          .child("photo")
+          .putFile(_croppedPath)
+          .onComplete;
+      String url = await task.ref.getDownloadURL();
+
+      setState(() {
+        this.photoURL = url;
+        this._bLoading = false;
+      });
+      updateUserData();
+    }
   }
 }
 

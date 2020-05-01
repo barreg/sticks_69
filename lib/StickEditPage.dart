@@ -44,6 +44,7 @@ class _StickEditPageState extends State<StickEditPage> {
     }
     stick.name = _nameController.text;
     stick.description = _descriptionController.text;
+    stick.creator = Provider.of<Userdata>(context).uid;
     if (stick.id == null) {
       stick.id = await Provider.of<DatabaseService>(context, listen: false)
           .createStick(stick);

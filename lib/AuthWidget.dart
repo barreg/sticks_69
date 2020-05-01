@@ -20,10 +20,10 @@ class AuthWidget extends StatelessWidget {
     if (userSnapshot.connectionState == ConnectionState.active) {
       if (userSnapshot.hasData) {
         try {
-        if (Provider.of<Userdata>(context).name == "") {         
-          return AccountSetupPage();
-        }
-        return StartPage();
+          if (Provider.of<Userdata>(context).name == "") {
+            return AccountSetupPage();
+          }
+          return StartPage();
         } catch (err) {}
       } else
         return LoginPage();
