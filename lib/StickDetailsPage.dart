@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:sticks_69/Models.dart';
 import 'DatabaseService.dart';
+import 'ProfilePage.dart';
 import 'StickEditPage.dart';
 import 'UserAvatar.dart';
 
@@ -57,9 +58,14 @@ class _StickDetailsPageState extends State<StickDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
-          title: Text(stick.name),
+          title: Center(
+              child: Text(
+            stick.name,
+            textScaleFactor: 1.2,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          )),
           actions: <Widget>[
             Provider.of<Userdata>(context).uid == stick.creator
                 ? IconButton(
@@ -89,9 +95,19 @@ class _StickDetailsPageState extends State<StickDetailsPage> {
                     Center(
                       child: Container(
                           decoration: BoxDecoration(shape: BoxShape.circle),
-                          child: UserAvatar(
-                            url: snapshot.data.photoURL,
-                            radius: 175,
+                          child: GestureDetector(
+                            child: UserAvatar(
+                              url: snapshot.data.photoURL,
+                              radius: 175,
+                            ),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ProfilePage(
+                                      snapshot.data.uid,
+                                      snapshot.data.photoURL,
+                                      snapshot.data.name)),
+                            ),
                           )),
                     ),
                     SizedBox(height: 30),

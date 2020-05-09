@@ -28,7 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _bEditing = false;
   bool _bLoading = false;
   File _croppedPath;
-  int numPoints;
+  double numPoints;
   final TextEditingController _nameController = new TextEditingController();
   final TextEditingController _descriptionController =
       new TextEditingController();
@@ -136,7 +136,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             )
                           : Center(child: CircularProgressIndicator()),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 10),
                     TextField(
                         controller: _nameController,
                         textCapitalization: TextCapitalization.words,
@@ -145,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: TextStyle(
                             fontSize: 45.0, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center),
-                    SizedBox(height: 20),
+                    SizedBox(height: 10),
                     TextField(
                         controller: _descriptionController,
                         textCapitalization: TextCapitalization.words,
@@ -163,7 +163,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     //   textAlign: TextAlign.center,
                     // ),
                     SizedBox(
-                      height: 20,
+                      height: 10,
+                    ),
+                    Text(
+                      "Nombre de sticks posés : " + this.numPoints.round().toString(),
+                      style: TextStyle(fontSize: 20),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      height: 10,
                     ),
                     Text(
                       "Préférences",
@@ -172,7 +180,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 5,
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 40),

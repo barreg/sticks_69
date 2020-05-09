@@ -5,7 +5,7 @@ class Userdata {
   String name;
   String description;
   String photoURL;
-  int numPoints;
+  double numPoints;
   final bool isAdmin;
 
   Userdata(this.uid, this.name, this.description, this.photoURL, this.numPoints,

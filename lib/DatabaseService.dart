@@ -106,6 +106,9 @@ class DatabaseService {
     return result;
   }
   Future<String> createStick(StickDetails stick) async {
+    await userRef.document(uid).updateData({
+      "numPoints": FieldValue.increment(1)
+    });
     DocumentReference doc = await sticksRef.add({
       "coordonnées": stick.location,
       "name": stick.name,
